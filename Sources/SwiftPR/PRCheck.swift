@@ -245,7 +245,7 @@ extension PRCheck {
                 }
 
                 try await _createOrUpdateSwiftPRComment()
-                try await _setStatus(.error, "An error occurred. Check logs for more info.")
+                try await _setStatus(.error, "An error occurred. See details for more info.")
             } catch {
                 _verboseLog?(
                     """
