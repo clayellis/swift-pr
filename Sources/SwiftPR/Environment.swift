@@ -35,6 +35,7 @@ extension Environment {
         case ci = "CI"
         case eventName = "GITHUB_EVENT_NAME"
         case token = "GITHUB_TOKEN"
+        case runID = "GITHUB_RUN_ID"
     }
 }
 
@@ -73,6 +74,10 @@ extension Environment {
     /// Example: `"abc123"`
     var token: String? {
         self[.token]
+    }
+
+    var runID: String? {
+        self[.runID]
     }
 }
 

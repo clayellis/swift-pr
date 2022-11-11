@@ -24,6 +24,9 @@ extension PRCheck {
     public static var pr: PR { .shared }
 
     public static func main() async {
+        var _owner: String?
+        var _repository: String?
+        var _runID: String?
         var _log: ((String) -> Void)?
         var _verboseLog: ((String) -> Void)?
         var _setStatus: ((_ state: Status.State, _ description: String) async throws -> Void)?
@@ -74,7 +77,8 @@ extension PRCheck {
                 }
                 number = refNumber
                 token = try environment.require(.token)
-                root = environment[.workspace]
+                root = try environment.require(.workspace)
+                _runID = environment[.runID]
 
             } else {
                 // TODO: Print "usage" if any of these fail
@@ -84,6 +88,9 @@ extension PRCheck {
                 root = try? arguments.consumeOption(named: "--root")
             }
 
+            _owner = owner
+            _repository = repository
+
             verboseLog("""
                 Details:
                 - Owner: \(owner)
@@ -91,6 +98,7 @@ extension PRCheck {
                 - Number: \(number)
                 - Token: \(token) (length: \(token.count))
                 - Root: \(root ?? "nil")
+                - Run ID: \(_runID ?? "nil")
                 - Dry Run: \(dryRun)
                 - Environment:
                 \(environment.dump.bulleted().indented())
@@ -218,6 +226,15 @@ extension PRCheck {
                 ```
                 """
             )
+
+            if let _owner, let _repository, let _runID {
+                // TODO: Use the jobs API (https://docs.github.com/en/rest/actions/workflow-jobs#list-jobs-for-a-workflow-run) to get the job id for the run
+                // (Use filter: latest)
+                // Then the url could be https://github.com/\(_owner)/\(_repository)/actions/runs/\(_runID)/jobs/\(_jobID)
+                // There isn't a consistent way that I can see though to determine which job was the one that ran swift-pr
+                // We could guess that it's the last one with the status "completed" and conclusion "failure"? But there may be later jobs that still ran and failed.
+                pr.markdown("See [full logs](https://github.com/\(_owner)/\(_repository)/actions/runs/\(_runID))")
+            }
 
             updatePR: do {
                 _verboseLog?("Updating PR...")
