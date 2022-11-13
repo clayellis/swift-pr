@@ -9,12 +9,14 @@ let package = Package(
         .library(name: "SwiftPR", targets: ["SwiftPR"])
     ],
     dependencies: [
+        .package(url: "https://github.com/clayellis/swift-arguments", branch: "main"),
         .package(url: "https://github.com/nerdishbynature/octokit.swift", branch: "main")
     ],
     targets: [
         .target(
             name: "SwiftPR",
             dependencies: [
+                .product(name: "Arguments", package: "swift-arguments"),
                 .product(name: "OctoKit", package: "octokit.swift")
             ]
         ),

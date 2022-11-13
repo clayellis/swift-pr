@@ -1,3 +1,4 @@
+import Arguments
 import Foundation
 import OctoKit
 
@@ -36,7 +37,7 @@ extension PRCheck {
             let environment = Environment(environment: ProcessInfo.processInfo.environment)
             pr.environment = environment
 
-            var arguments = ArgumentParser()
+            var arguments = Arguments()
 
             let dryRun = arguments.consumeFlag(named: "--dry-run")
             let verbose = arguments.consumeFlag(named: "--verbose")

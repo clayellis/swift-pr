@@ -1,3 +1,4 @@
+import Arguments
 import Foundation
 
 struct PullRequestOption: ExpressibleByArgument {
