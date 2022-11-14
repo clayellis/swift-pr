@@ -46,7 +46,7 @@ extension PRCheck {
                     .option("token", required: true, description: "GitHub token. The token can be added to the environment by adding 'env: (newline) GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}' to the action that triggers this swift-pr check. The default token is one that the GitHub Actions bot can use to comment on your pull request."),
                     .option("root", required: true, description: "The location of the repository's root directory."),
                     .flag("dry-run", description: "Disables posting the swift-pr comment to the pull request."),
-                    .flag("verbose", description: "Enable verbose logs."),
+                    .flag("verbose", description: "Enables verbose logs."),
                 ]
             ))
 
@@ -221,8 +221,8 @@ extension PRCheck {
         } catch {
             _log?("""
                 Caught error:
-                \(error)
                 \(error.localizedDescription)
+                \(error)
                 Exiting
                 """
             )
@@ -231,8 +231,8 @@ extension PRCheck {
             pr.markdown("""
                 ## Logs
                 ```
-                \(error)
                 \(error.localizedDescription)
+                \(error)
                 ```
                 """
             )
@@ -260,8 +260,8 @@ extension PRCheck {
                 _verboseLog?(
                     """
                     An error occurred while updating PR:
-                    \(error)
                     \(error.localizedDescription)
+                    \(error)
                     """
                 )
             }
