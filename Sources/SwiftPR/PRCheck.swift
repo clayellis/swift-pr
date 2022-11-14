@@ -38,14 +38,17 @@ extension PRCheck {
             pr.environment = ProcessEnvironment.self
             let githubEnvironment = ProcessEnvironment.github
 
-            var arguments = Arguments(usage: Usage(commands: [
-                "pr",
-                .option("pr", required: true, description: "Pull request url."),
-                .option("token", required: true, description: "GitHub token. Use ${{ secrets.GITHUB_TOKEN }}."),
-                .option("root", required: true, description: "The location of the repository's root directory."),
-                .flag("dry-run", description: "Disables posting the swift-pr comment to the pull request."),
-                .flag("verbose", description: "Enable verbose logs."),
-            ]))
+            var arguments = Arguments(usage: Usage(
+                overview: "Run swift-pr locally, either on the command line or in Xcode. If running in Xcode, pass the required arguments by editing your executable's scheme, then adding them under the Run > Arguments tab's \"Arguments Passed On Launch\" section. You can also simulate running in GitHub actions by passing the appropriate variables under the \"Environment Variables\" section.",
+                commands: [
+                    "your-check-name",
+                    .option("pr", required: true, description: "Pull request url."),
+                    .option("token", required: true, description: "GitHub token. The token can be added to the environment by adding 'env: (newline) GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}' to the action that triggers this swift-pr check. The default token is one that the GitHub Actions bot can use to comment on your pull request."),
+                    .option("root", required: true, description: "The location of the repository's root directory."),
+                    .flag("dry-run", description: "Disables posting the swift-pr comment to the pull request."),
+                    .flag("verbose", description: "Enable verbose logs."),
+                ]
+            ))
 
             let dryRun = arguments.consumeFlag(named: "--dry-run")
             let verbose = arguments.consumeFlag(named: "--verbose")

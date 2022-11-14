@@ -26,5 +26,6 @@ let package = Package(
             name: "SwiftPRTests",
             dependencies: ["SwiftPR"]
         ),
+        .executableTarget(name: "Demo", dependencies: ["SwiftPR"])
     ]
 )
