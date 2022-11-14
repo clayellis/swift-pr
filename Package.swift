@@ -10,6 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/clayellis/swift-arguments", branch: "main"),
+        .package(url: "https://github.com/clayellis/swift-environment", branch: "main"),
         .package(url: "https://github.com/nerdishbynature/octokit.swift", branch: "main")
     ],
     targets: [
@@ -17,6 +18,7 @@ let package = Package(
             name: "SwiftPR",
             dependencies: [
                 .product(name: "Arguments", package: "swift-arguments"),
+                .product(name: "SwiftEnvironment", package: "swift-environment"),
                 .product(name: "OctoKit", package: "octokit.swift")
             ]
         ),

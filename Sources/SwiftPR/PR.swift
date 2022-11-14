@@ -1,5 +1,6 @@
 import Foundation
 import OctoKit
+import SwiftEnvironment
 
 public class PR {
     internal static let shared = PR()
@@ -15,7 +16,7 @@ public class PR {
     public internal(set) var github = Octokit()
     public internal(set) var prCheckComment: Comment?
     public internal(set) var pullRequest: PullRequest!
-    public internal(set) var environment = Environment()
+    public internal(set) var environment = ProcessEnvironment.self
 }
 
 extension PR {

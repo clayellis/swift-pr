@@ -1,6 +1,7 @@
 import Arguments
 import Foundation
 import OctoKit
+import SwiftEnvironment
 
 public protocol PRCheck {
     static func runChecks() async throws
@@ -34,10 +35,17 @@ extension PRCheck {
         var _createOrUpdateSwiftPRComment: (() async throws -> Void)?
 
         do {
-            let environment = Environment(environment: ProcessInfo.processInfo.environment)
-            pr.environment = environment
+            pr.environment = ProcessEnvironment.self
+            let githubEnvironment = ProcessEnvironment.github
 
-            var arguments = Arguments()
+            var arguments = Arguments(usage: Usage(commands: [
+                "pr",
+                .option("pr", required: true, description: "Pull request url."),
+                .option("token", required: true, description: "GitHub token. Use ${{ secrets.GITHUB_TOKEN }}."),
+                .option("root", required: true, description: "The location of the repository's root directory."),
+                .flag("dry-run", description: "Disables posting the swift-pr comment to the pull request."),
+                .flag("verbose", description: "Enable verbose logs."),
+            ]))
 
             let dryRun = arguments.consumeFlag(named: "--dry-run")
             let verbose = arguments.consumeFlag(named: "--verbose")
@@ -63,23 +71,23 @@ extension PRCheck {
             var token: String
             var root: String?
 
-            if environment.isCI {
-                guard environment.isPullRequest else {
+            if githubEnvironment.isCI {
+                guard githubEnvironment.isPullRequest else {
                     throw PRCheckError.notRunningInPullRequest
                 }
 
-                owner = try environment.require(.repositoryOwner)
-                let fullRepository = try environment.require(.repository)
+                owner = try githubEnvironment.$repositoryOwner.require()
+                let fullRepository = try githubEnvironment.$repository.require()
                 repository = fullRepository.removingPrefix("\(owner)/")
-                let fullRefName = try environment.require(.refName)
+                let fullRefName = try githubEnvironment.$refName.require()
                 let refNumberString = fullRefName.removingSuffix("/merge")
                 guard let refNumber = Int(refNumberString) else {
                     throw PRCheckError.invalidConversion("Failed to convert refNumberString '\(refNumberString)' to Int")
                 }
                 number = refNumber
-                token = try environment.require(.token)
-                root = try environment.require(.workspace)
-                _runID = environment[.runID]
+                token = try githubEnvironment.$token.require()
+                root = try githubEnvironment.$workspace.require()
+                _runID = githubEnvironment.runID
 
             } else {
                 // TODO: Print "usage" if any of these fail
@@ -101,8 +109,6 @@ extension PRCheck {
                 - Root: \(root ?? "nil")
                 - Run ID: \(_runID ?? "nil")
                 - Dry Run: \(dryRun)
-                - Environment:
-                \(environment.dump.bulleted().indented())
                 """
             )
 
@@ -131,7 +137,7 @@ extension PRCheck {
                     state: state,
                     targetURL: prCheckComment?.htmlURL.absoluteString,
                     description: description,
-                    context: "swift-pr (\(environment.isCI ? "pull_request" : "local"))"
+                    context: "swift-pr (\(githubEnvironment.isCI ? "pull_request" : "local"))"
                 )
             }
 
