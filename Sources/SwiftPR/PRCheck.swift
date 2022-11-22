@@ -25,7 +25,7 @@ extension PRCheck {
     /// Accessing this value outside of ``runChecks()`` is unsupported.
     public static var pr: PR { .shared }
 
-    public static func main() async {
+    public static func main() async throws {
         var _owner: String?
         var _repository: String?
         var _runID: String?
@@ -217,7 +217,6 @@ extension PRCheck {
             try await setStatus(state: state, description: description)
 
             verboseLog("Done!")
-            exit(0)
         } catch {
             _log?("""
                 Caught error:
@@ -265,7 +264,8 @@ extension PRCheck {
                     """
                 )
             }
-            exit(1)
+
+            throw error
         }
     }
 }
