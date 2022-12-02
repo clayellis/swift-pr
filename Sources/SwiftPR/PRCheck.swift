@@ -42,7 +42,7 @@ extension PRCheck {
         return .success
     }
 
-    public static func getSwiftPRComment(owner: String? = nil, repository: String? = nil, prNumber: Int? = nil) async throws -> Comment? {
+    public static func getSwiftPRComment(_ check: PRCheck.Type = Self.self, owner: String? = nil, repository: String? = nil, prNumber: Int? = nil) async throws -> Comment? {
         var owner = owner
         var repository = repository
         var prNumber = prNumber
@@ -61,7 +61,7 @@ extension PRCheck {
         }
 
         let pullRequestComments = try await pr.github.issueComments(owner: owner, repository: repository, number: prNumber)
-        var prCheckComment = pullRequestComments.first(where: { $0.body.hasPrefix(commentID) })
+        var prCheckComment = pullRequestComments.first(where: { $0.body.hasPrefix(check.commentID) })
         return prCheckComment
     }
 
