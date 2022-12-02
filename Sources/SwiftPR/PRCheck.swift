@@ -15,7 +15,8 @@ public protocol PRCheck {
 // - audit public interface
 // - add documentation to public interfaces
 
-enum PRCheckError: Error {
+public enum PRCheckError: Error {
+    case missingInfoForSwiftPRComment
     case notRunningInPullRequest
     case invalidConversion(String)
 }
@@ -39,6 +40,29 @@ extension PRCheck {
         }
 
         return .success
+    }
+
+    public static func getSwiftPRComment(owner: String? = nil, repository: String? = nil, prNumber: Int? = nil) async throws -> Comment? {
+        var owner = owner
+        var repository = repository
+        var prNumber = prNumber
+
+        if owner == nil || repository == nil {
+            (owner, repository) = try ProcessEnvironment.GitHub.requireOwnerRepository()
+        }
+
+        if prNumber == nil {
+            prNumber = try ProcessEnvironment.GitHub.requirePullRequestNumber()
+        }
+
+        guard let owner, let repository, let prNumber else {
+            // This should never happen
+            throw PRCheckError.missingInfoForSwiftPRComment
+        }
+
+        let pullRequestComments = try await pr.github.issueComments(owner: owner, repository: repository, number: prNumber)
+        var prCheckComment = pullRequestComments.first(where: { $0.body.hasPrefix(commentID) })
+        return prCheckComment
     }
 
     public static func main() async throws {
@@ -96,15 +120,8 @@ extension PRCheck {
                     throw PRCheckError.notRunningInPullRequest
                 }
 
-                owner = try githubEnvironment.$repositoryOwner.require()
-                let fullRepository = try githubEnvironment.$repository.require()
-                repository = fullRepository.removingPrefix("\(owner)/")
-                let fullRefName = try githubEnvironment.$refName.require()
-                let refNumberString = fullRefName.removingSuffix("/merge")
-                guard let refNumber = Int(refNumberString) else {
-                    throw PRCheckError.invalidConversion("Failed to convert refNumberString '\(refNumberString)' to Int")
-                }
-                number = refNumber
+                (owner, repository) = try githubEnvironment.requireOwnerRepository()
+                number = try githubEnvironment.requirePullRequestNumber()
                 token = try githubEnvironment.$token.require()
                 root = try githubEnvironment.$workspace.require()
                 _runID = githubEnvironment.runID
@@ -142,9 +159,9 @@ extension PRCheck {
 
             // TODO: If swift-pr is run during ci/cd and the head has changed, the sha will have changed. We need to get the new head.
             let sha = pullRequest.head!.sha!
+
             verboseLog("Getting pull request comments...")
-            let pullRequestComments = try await github.issueComments(owner: owner, repository: repository, number: number)
-            var prCheckComment = pullRequestComments.first(where: { $0.body.hasPrefix(commentID) })
+            var prCheckComment = try await getSwiftPRComment(owner: owner, repository: repository, prNumber: number)
             pr.prCheckComment = prCheckComment
 
             func setStatus(state: Status.State, description: String) async throws {
