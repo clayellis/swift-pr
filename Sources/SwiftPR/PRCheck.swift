@@ -34,6 +34,10 @@ extension PRCheck {
     /// Accessing this value outside of ``run()`` is unsupported.
     public var pr: PR { .shared }
 
+    public static var statusContext: String {
+        "SwiftPR / \(id)"
+    }
+
     public static var statusState: Status.State {
         if !pr.output.messages(severity: .error).isEmpty {
             return .failure
@@ -175,7 +179,7 @@ extension PRCheck {
                     state: state,
                     targetURL: prCheckComment?.htmlURL.absoluteString,
                     description: description,
-                    context: "SwiftPR / \(id)" + (githubEnvironment.isCI ? "" : " (local)")
+                    context: statusContext + (githubEnvironment.isCI ? "" : " (local)")
                 )
             }
 
