@@ -19,16 +19,16 @@ struct Message: Codable {
     let severity: Severity
 }
 
-extension PR {
-    public func error(_ message: String) {
-        output.messages.append(Message(message: message, severity: .error))
+extension PR.Output {
+    public mutating func error(_ message: String) {
+        messages.append(Message(message: message, severity: .error))
     }
 
-    public func warning(_ message: String) {
-        output.messages.append(Message(message: message, severity: .warning))
+    public mutating func warning(_ message: String) {
+        messages.append(Message(message: message, severity: .warning))
     }
 
-    public func info(_ message: String) {
-        output.messages.append(Message(message: message, severity: .info))
+    public mutating func info(_ message: String) {
+        messages.append(Message(message: message, severity: .info))
     }
 }

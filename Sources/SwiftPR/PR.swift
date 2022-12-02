@@ -5,11 +5,8 @@ import SwiftEnvironment
 public class PR {
     internal static let shared = PR()
 
-    // The combined results (output) of all checks run on this PR.
-    internal var results = Results()
-
     // The output being built up by the current check on this PR.
-    internal var output = Output()
+    public var output = Output()
 
     public internal(set) var log: (_ message: String) -> Void = { _ in }
     public internal(set) var verboseLog: (_ message: String) -> Void = { _ in }
@@ -23,13 +20,18 @@ public class PR {
 }
 
 extension PR {
-    struct Output: Codable {
+    public struct Output: Codable {
+        static let startTag = "<!--__output-start__"
+        static let endTag = "__output-end__-->"
+
         var checkName: String?
         var messages = [Message]()
         var markdowns = [String]()
 
         var markdown: String {
             """
+            #### \(checkName ?? "SwiftPR")
+
             \(messagesMarkdown)
 
             \(markdowns.joined(separator: "\n\n"))
@@ -50,27 +52,6 @@ extension PR {
         func messages(severity: Message.Severity) -> [Message] {
             messages.filter { $0.severity == severity }
         }
-    }
-
-    struct Results: Codable {
-        var output = [Output]()
-
-        var markdown: String {
-            if output.count == 1 {
-                return output[0].markdown
-            } else {
-                var markdown = ""
-                for output in output {
-                    markdown += """
-
-                    #### \(output.checkName ?? "Unnamed Check")
-                    \(output.markdown)
-
-                    """
-                }
-                return markdown
-            }
-        }
 
         func json() throws -> String {
             let encoder = JSONEncoder()
@@ -81,8 +62,20 @@ extension PR {
     }
 }
 
-extension PR {
-    public func markdown(_ markdown: String) {
-        self.output.markdowns.append(markdown)
+extension Comment {
+    func swiftPROutput() throws -> PR.Output? {
+        guard let start = body.range(of: PR.Output.startTag), let end = body.range(of: PR.Output.endTag) else {
+            return nil
+        }
+
+        let results = body[body.index(after: start.upperBound)..<end.lowerBound]
+        let output = try JSONDecoder().decode(PR.Output.self, from: Data(results.utf8))
+        return output
+    }
+}
+
+extension PR.Output {
+    public mutating func markdown(_ markdown: String) {
+        markdowns.append(markdown)
     }
 }
