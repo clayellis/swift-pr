@@ -28,16 +28,6 @@ extension PR {
         var messages = [Message]()
         var markdowns = [String]()
 
-        var markdown: String {
-            """
-            #### \(checkName ?? "SwiftPR")
-
-            \(messagesMarkdown)
-
-            \(markdowns.joined(separator: "\n\n"))
-            """
-        }
-
         var messagesMarkdown: String {
             var table = MarkdownTable()
             table.setColumns(["": .center, "Message": .left])
@@ -49,6 +39,16 @@ extension PR {
             return table.markdown()
         }
 
+        var markdown: String {
+            """
+            #### \(checkName ?? "SwiftPR")
+
+            \(messagesMarkdown)
+
+            \(markdowns.joined(separator: "\n\n"))
+            """
+        }
+
         func messages(severity: Message.Severity) -> [Message] {
             messages.filter { $0.severity == severity }
         }
@@ -58,6 +58,16 @@ extension PR {
             encoder.outputFormatting = [.prettyPrinted]
             let data = try encoder.encode(self)
             return String(decoding: data, as: UTF8.self)
+        }
+
+        func body() throws -> String {
+            """
+            \(Self.startTag)
+            \(try json())
+            \(Self.endTag)
+
+            \(markdown)
+            """
         }
     }
 }
