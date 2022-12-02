@@ -6,7 +6,7 @@ public class PR {
     internal static let shared = PR()
 
     // The output being built up by the current check on this PR.
-    public var output = Output()
+    public var output: Output!
 
     public internal(set) var log: (_ message: String) -> Void = { _ in }
     public internal(set) var verboseLog: (_ message: String) -> Void = { _ in }
@@ -24,7 +24,7 @@ extension PR {
         static let startTag = "<!--__output-start__"
         static let endTag = "__output-end__-->"
 
-        var checkName: String?
+        var checkName: String
         var messages = [Message]()
         var markdowns = [String]()
 
@@ -41,7 +41,7 @@ extension PR {
 
         var markdown: String {
             """
-            #### \(checkName ?? "SwiftPR")
+            #### \(checkName)
 
             \(messagesMarkdown)
 

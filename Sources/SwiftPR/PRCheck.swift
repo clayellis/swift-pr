@@ -86,7 +86,7 @@ extension PRCheck {
         var _createOrUpdateSwiftPRComment: (() async throws -> Void)?
 
         do {
-            pr.output.checkName = name
+            pr.output = PR.Output(checkName: name)
             pr.environment = ProcessEnvironment.self
             let githubEnvironment = ProcessEnvironment.github
 
