@@ -158,7 +158,7 @@ extension PRCheck {
                     state: state,
                     targetURL: prCheckComment?.htmlURL.absoluteString,
                     description: description,
-                    context: "SwiftPR/\(id)" + (githubEnvironment.isCI ? "" : " (local)")
+                    context: "SwiftPR / \(id)" + (githubEnvironment.isCI ? "" : " (local)")
                 )
             }
 
