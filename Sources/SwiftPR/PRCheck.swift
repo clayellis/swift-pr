@@ -4,8 +4,15 @@ import OctoKit
 import SwiftEnvironment
 
 public protocol PRCheck {
+    static var name: String { get }
     init()
     func run() async throws
+}
+
+public extension PRCheck {
+    static var name: String {
+        "\(self)"
+    }
 }
 
 // TODO: Add tests
@@ -35,7 +42,7 @@ extension PRCheck {
     public var pr: PR { .shared }
 
     public static var statusContext: String {
-        "SwiftPR / \(id)"
+        "SwiftPR / \(name)"
     }
 
     public static var statusState: Status.State {
@@ -65,7 +72,7 @@ extension PRCheck {
         }
 
         let pullRequestComments = try await pr.github.issueComments(owner: owner, repository: repository, number: prNumber)
-        var prCheckComment = pullRequestComments.first(where: { $0.body.hasPrefix(check.commentID) })
+        let prCheckComment = pullRequestComments.first(where: { $0.body.hasPrefix(check.commentID) })
         return prCheckComment
     }
 
@@ -79,7 +86,7 @@ extension PRCheck {
         var _createOrUpdateSwiftPRComment: (() async throws -> Void)?
 
         do {
-            pr.output.checkName = "\(self)"
+            pr.output.checkName = name
             pr.environment = ProcessEnvironment.self
             let githubEnvironment = ProcessEnvironment.github
 
