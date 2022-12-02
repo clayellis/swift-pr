@@ -62,7 +62,7 @@ extension PR {
     }
 }
 
-extension Comment {
+public extension Comment {
     func swiftPROutput() throws -> PR.Output? {
         guard let start = body.range(of: PR.Output.startTag), let end = body.range(of: PR.Output.endTag) else {
             return nil
