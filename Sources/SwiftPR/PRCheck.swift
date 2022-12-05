@@ -22,10 +22,8 @@ public extension PRCheck {
 
 // TODO: Add tests
 // TODO: Add support for adding a comment to specific file/line?
-// TODO: Next up is to make this thing work in GitHub Actions
-// - make a repo for swift-pr
-// - audit public interface
-// - add documentation to public interfaces
+// TODO: Audit public interface
+// TODO: Add documentation to public interfaces
 
 public enum PRCheckError: Error {
     case missingInfoForSwiftPRComment
