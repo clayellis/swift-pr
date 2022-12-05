@@ -5,6 +5,7 @@ import SwiftEnvironment
 
 public protocol PRCheck {
     static var name: String { get }
+    static var statusContext: String { get }
     init()
     func run() async throws
 }
@@ -12,6 +13,10 @@ public protocol PRCheck {
 public extension PRCheck {
     static var name: String {
         "\(self)"
+    }
+
+    static var statusContext: String {
+        "SwiftPR / \(name)"
     }
 }
 
@@ -40,10 +45,6 @@ extension PRCheck {
 
     /// Accessing this value outside of ``run()`` is unsupported.
     public var pr: PR { .shared }
-
-    public static var statusContext: String {
-        "SwiftPR / \(name)"
-    }
 
     public static var statusState: Status.State {
         if !pr.output.messages(severity: .error).isEmpty {
