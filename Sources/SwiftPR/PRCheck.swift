@@ -78,7 +78,7 @@ extension PRCheck {
     public static func main() async throws {
         var _owner: String?
         var _repository: String?
-        var _runID: String?
+        var _runID: Int?
         var _log: ((String) -> Void)?
         var _verboseLog: ((String) -> Void)?
         var _setStatus: ((_ state: Status.State, _ description: String) async throws -> Void)?
@@ -154,7 +154,7 @@ extension PRCheck {
                 - Number: \(number)
                 - Token: \(token) (length: \(token.count))
                 - Root: \(root ?? "nil")
-                - Run ID: \(_runID ?? "nil")
+                - Run ID: \(_runID?.description ?? "nil")
                 - Dry Run: \(dryRun)
                 """
             )
